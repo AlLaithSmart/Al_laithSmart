@@ -202,6 +202,7 @@
             display: flex;
             justify-content: center;
             margin-bottom: 15px;
+            position: relative;
         }
         .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -215,6 +216,11 @@
         }
         input:checked + .slider { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
         input:checked + .slider:before { transform: translateX(26px); }
+        
+        .switch.loading .slider {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
         .features-grid {
             display: grid;
@@ -299,7 +305,7 @@
     <div class="container">
         <div class="header">
             <h1>لوحة تحكم المفاتيح الذكية</h1>
-            <p>Smart Switch Dashboard - التحكم المحلي والإنترنت</p>
+            <p>Smart Switch Dashboard - التحكم المحلي والإنترنت (محسّن للسرعة)</p>
         </div>
 
         <div class="toolbar">
@@ -462,6 +468,7 @@
         let searchTerm = '';
         let currentEditIndex = -1;
         let currentScheduleDays = [false, false, false, false, false, false, false];
+        let pendingRequests = {}; // Track pending requests per device
         
         window.onload = function() {
             loadDevices();
@@ -477,7 +484,8 @@
                     if(!d.timer) d.timer = {enabled: false, remaining: 0};
                     if(!d.schedule) d.schedule = {enabled: false, onTime: "08:00", offTime: "22:00", days: []};
                     if(!d.localIP) d.localIP = '';
-                    if(!d.controlMode) d.controlMode = 'auto'; // auto, local, mqtt
+                    if(!d.controlMode) d.controlMode = 'auto';
+                    pendingRequests[d.id] = false;
                 });
             }
             renderDevices();
@@ -501,6 +509,7 @@
                 const index = devices.indexOf(device);
                 const isTimerActive = device.timer && device.timer.enabled;
                 const isScheduleActive = device.schedule && device.schedule.enabled;
+                const isPending = pendingRequests[device.id] || false;
                 
                 const card = document.createElement('div');
                 card.className = 'device-card';
@@ -544,8 +553,8 @@
                     </div>
                     <div class="device-controls">
                         <div class="toggle-wrapper">
-                            <label class="switch">
-                                <input type="checkbox" id="sw-${index}" ${device.state ? 'checked' : ''} onchange="toggleSwitch(${index})">
+                            <label class="switch ${isPending ? 'loading' : ''}">
+                                <input type="checkbox" id="sw-${index}" ${device.state ? 'checked' : ''} onchange="toggleSwitch(${index})" ${isPending ? 'disabled' : ''}>
                                 <span class="slider"></span>
                             </label>
                         </div>
@@ -580,32 +589,45 @@
             document.getElementById('onDevices').textContent = devices.filter(d => d.state).length;
         }
 
-        // --- LOCAL HTTP CONTROL ---
-        async function callLocalEndpoint(device, endpoint, params = {}) {
-            if (!device.localIP) return null;
-            
-            try {
+        // --- OPTIMIZED LOCAL HTTP CONTROL (1 second timeout) ---
+        function callLocalEndpointFast(device, endpoint, params = {}) {
+            return new Promise((resolve) => {
+                if (!device.localIP) {
+                    resolve(null);
+                    return;
+                }
+                
                 const url = new URL(`http://${device.localIP}${endpoint}`);
                 Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
                 
-                const response = await fetch(url.toString(), { 
+                // Aggressive 1 second timeout
+                const timeoutId = setTimeout(() => {
+                    resolve(null);
+                }, 1000);
+                
+                fetch(url.toString(), { 
                     method: 'GET',
                     mode: 'cors',
-                    timeout: 3000
-                });
-                
-                if (response.ok) {
-                    const text = await response.text();
-                    try {
-                        return JSON.parse(text);
-                    } catch {
-                        return { success: true };
+                    signal: AbortSignal.timeout(1000)
+                })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    if (response.ok) {
+                        return response.text().then(text => {
+                            try {
+                                resolve(JSON.parse(text));
+                            } catch {
+                                resolve({ success: true });
+                            }
+                        });
                     }
-                }
-            } catch (error) {
-                console.log('Local endpoint failed:', error);
-            }
-            return null;
+                    resolve(null);
+                })
+                .catch(() => {
+                    clearTimeout(timeoutId);
+                    resolve(null);
+                });
+            });
         }
 
         // --- MQTT LOGIC ---
@@ -651,7 +673,10 @@
         function publishCommand(index, payload) {
             const d = devices[index];
             const c = clients[d.id];
-            if(!c || !c.connected) { alert('الجهاز غير متصل'); return false; }
+            if(!c || !c.connected) { 
+                console.log('MQTT not connected for', d.id);
+                return false; 
+            }
             payload.token = d.token;
             c.publish('laithsmartswitch/remote/' + d.id + '/control', JSON.stringify(payload));
             return true;
@@ -661,28 +686,37 @@
             publishCommand(index, { command: 'status' });
         }
         
-        // --- HYBRID CONTROL (LOCAL + MQTT) ---
+        // --- OPTIMIZED HYBRID CONTROL (PARALLEL + FAST TIMEOUT) ---
         async function toggleSwitch(index) {
             const d = devices[index];
             const newState = !d.state;
-            d.state = newState;
             
-            // Try local first
+            // Mark as pending
+            pendingRequests[d.id] = true;
+            renderDevices();
+            
+            // Try local (1 second timeout)
             if (d.localIP) {
-                const result = await callLocalEndpoint(d, '/setRelay', { state: newState ? 1 : 0 });
-                if (result !== null) {
+                const localResult = await callLocalEndpointFast(d, '/setRelay', { state: newState ? 1 : 0 });
+                if (localResult !== null) {
+                    d.state = newState;
                     d.lastConnectionMode = 'local';
                     d.online = true;
+                    pendingRequests[d.id] = false;
                     renderDevices();
                     return;
                 }
             }
             
             // Fall back to MQTT
+            d.state = newState;
             if(publishCommand(index, { command: newState ? 'on' : 'off' })) {
                 d.lastConnectionMode = 'mqtt';
-                renderDevices();
+                d.online = true;
             }
+            
+            pendingRequests[d.id] = false;
+            renderDevices();
         }
         
         function deleteDevice(index) {
@@ -713,13 +747,13 @@
                 timer: { enabled: true, duration: seconds, targetState: target }
             };
             
-            // Try local first
+            // Try local first (1 second timeout)
             if (d.localIP) {
-                const result = await callLocalEndpoint(d, '/setTimer', { 
+                const localResult = await callLocalEndpointFast(d, '/setTimer', { 
                     seconds: seconds, 
                     action: target ? 'on' : 'off' 
                 });
-                if (result !== null) {
+                if (localResult !== null) {
                     d.lastConnectionMode = 'local';
                     d.timer = payload.timer;
                     saveDevices();
@@ -835,13 +869,16 @@
             if(!name || !id || !token) return alert('جميع الحقول مطلوبة');
             if(devices.find(d=>d.id===id)) return alert('المعرف موجود مسبقاً');
             
-            devices.push({
+            const newDevice = {
                 name, room: document.getElementById('newDeviceRoom').value, id, token,
                 localIP: document.getElementById('newDeviceLocalIP').value,
                 state: false, online: false, rssi: '-',
                 timer: {enabled:false}, schedule: {enabled:false, days:[]},
                 lastConnectionMode: 'mqtt'
-            });
+            };
+            
+            devices.push(newDevice);
+            pendingRequests[id] = false;
             saveDevices();
             renderDevices();
             closeModal('addDeviceModal');
@@ -892,6 +929,9 @@
                     const imported = JSON.parse(e.target.result);
                     if(Array.isArray(imported)) {
                         devices = [...devices, ...imported];
+                        imported.forEach(d => {
+                            pendingRequests[d.id] = false;
+                        });
                         saveDevices();
                         renderDevices();
                         alert('تم الاستيراد');

@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Switch Dashboard</title>
+    <title>Al-Laith Smart Solutions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
@@ -12,56 +15,119 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9; /* Softer light background */
             min-height: 100vh;
             padding: 20px;
+            color: #2c3e50;
         }
         .container {
             max-width: 1400px;
             margin: 0 auto;
         }
+        
+        /* --- UPDATED HEADER STYLES --- */
         .header {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 30px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px 30px;
             margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            border: 1px solid rgba(0,0,0,0.05);
         }
+        
+        .logo-container {
+            flex-shrink: 0;
+            width: 120px;  /* ENLARGED LOGO */
+            height: 120px; /* ENLARGED LOGO */
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f8f9fa;
+            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.25);
+            border: 3px solid rgba(0, 212, 170, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo-container:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.35);
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-text {
+            flex-grow: 1;
+        }
+
         .header h1 {
-            color: #2c3e50;
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            color: #1a202c;
+            font-size: 32px; /* Larger font for title */
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
         }
+        
         .header p {
-            color: #6c757d;
-            font-size: 16px;
+            font-family: 'Orbitron', sans-serif; 
+            color: #00a896; /* Teal color from logo */
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
+        
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            .logo-container { width: 100px; height: 100px; }
+            .header h1 { font-size: 24px; }
+            .header p { font-size: 12px; }
+        }
+        /* --- END HEADER STYLES --- */
+
         .toolbar {
-            background: rgba(255,255,255,0.95);
-            border-radius: 10px;
+            background: #ffffff;
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
         }
         .search-box {
             flex: 1;
-            min-width: 300px;
+            min-width: 250px;
             position: relative;
         }
         .search-box input {
             width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 25px;
+            padding: 12px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 14px;
-            background: #f8f9fa;
+            background: #f8fafc;
+            color: #2d3748;
+            font-family: inherit;
         }
+        .search-box input::placeholder { color: #a0aec0; }
+        
         .btn {
             padding: 10px 20px;
             border: none;
@@ -74,34 +140,35 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-family: inherit;
         }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .btn-success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; }
-        .btn-danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; }
-        .btn-warning { background: linear-gradient(135deg, #ffc107 0%, #ffca2c 100%); color: #333; }
+        .btn-primary { background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%); color: #fff; }
+        .btn-success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #fc8181 0%, #e53e3e 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%); color: #fff; }
         
         .btn-timer { 
-            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); 
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); 
             color: white; 
             border: 1px solid transparent;
         }
         .btn-timer.active {
-            box-shadow: 0 0 10px rgba(255, 87, 34, 0.6);
-            border: 2px solid white;
-            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(237, 137, 54, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transform: scale(1.02);
         }
         .btn-schedule { 
-            background: linear-gradient(135deg, #00bcd4 0%, #009688 100%); 
+            background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%); 
             color: white; 
             border: 1px solid transparent;
         }
         .btn-schedule.active {
-            box-shadow: 0 0 10px rgba(0, 188, 212, 0.6);
-            border: 2px solid white;
-            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(79, 209, 197, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transform: scale(1.02);
         }
 
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
         .stats {
             display: grid;
@@ -110,20 +177,22 @@
             margin-bottom: 30px;
         }
         .stat-card {
-            background: white;
-            padding: 20px;
+            background: #ffffff;
+            padding: 25px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.03);
         }
         .stat-value {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
-            color: #667eea;
+            color: #00a896;
             margin-bottom: 5px;
+            font-family: 'Orbitron', sans-serif;
         }
         .stat-label {
-            color: #6c757d;
+            color: #718096;
             font-size: 14px;
         }
 
@@ -134,51 +203,53 @@
             margin-bottom: 30px;
         }
         .device-card {
-            background: white;
+            background: #ffffff;
             border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
             overflow: hidden;
             transition: all 0.3s ease;
             position: relative;
             display: flex;
             flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .device-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); border-color: rgba(0, 212, 170, 0.3); }
         .device-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
             padding: 20px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
         .device-name {
             font-size: 20px;
             font-weight: 700;
-            color: #2c3e50;
+            color: #2d3748;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .device-id {
-            font-family: monospace;
-            font-size: 13px;
-            color: #6c757d;
-            background: #f1f3f4;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            color: #00a896;
+            background: rgba(0, 212, 170, 0.1);
             padding: 4px 8px;
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: 1px solid rgba(0, 212, 170, 0.2);
         }
-        .device-id:hover { background: #e9ecef; transform: scale(1.05); }
+        .device-id:hover { background: rgba(0, 212, 170, 0.2); transform: scale(1.05); }
         .device-status { display: flex; align-items: center; gap: 8px; font-size: 14px; }
         .status-dot {
             width: 12px; height: 12px; border-radius: 50%; animation: pulse 2s infinite;
         }
-        .status-online { background: #28a745; box-shadow: 0 0 8px rgba(40, 167, 69, 0.4); }
-        .status-offline { background: #dc3545; box-shadow: 0 0 8px rgba(220, 53, 69, 0.4); }
+        .status-online { background: #48bb78; box-shadow: 0 0 8px rgba(72, 187, 120, 0.6); }
+        .status-offline { background: #fc8181; box-shadow: 0 0 8px rgba(252, 129, 129, 0.4); }
         @keyframes pulse {
-            0% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.4); }
-            50% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.8); }
-            100% { box-shadow: 0 0 8px rgba(40, 167, 69, 0.4); }
+            0% { box-shadow: 0 0 8px rgba(72, 187, 120, 0.4); }
+            50% { box-shadow: 0 0 8px rgba(72, 187, 120, 0.8); }
+            100% { box-shadow: 0 0 8px rgba(72, 187, 120, 0.4); }
         }
         .device-info { 
             padding: 20px; 
@@ -186,16 +257,16 @@
         }
         .info-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 0; border-bottom: 1px solid #f1f3f4; font-size: 14px;
+            padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 14px;
         }
         .info-row:last-child { border-bottom: none; }
-        .info-label { color: #6c757d; font-weight: 600; }
-        .info-value { color: #2c3e50; font-weight: 500; }
+        .info-label { color: #718096; font-weight: 600; }
+        .info-value { color: #4a5568; font-weight: 500; }
         
         .device-controls { 
             padding: 20px; 
-            background: #fafafa; 
-            border-top: 1px solid #eee; 
+            background: #f8fafc; 
+            border-top: 1px solid rgba(0, 0, 0, 0.05); 
         }
         
         .toggle-wrapper {
@@ -208,13 +279,13 @@
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc; transition: .4s; border-radius: 34px;
+            background-color: #cbd5e0; transition: .4s; border-radius: 34px;
         }
         .slider:before {
             position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px;
             background-color: white; transition: .4s; border-radius: 50%;
         }
-        input:checked + .slider { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+        input:checked + .slider { background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%); box-shadow: 0 0 15px rgba(0, 212, 170, 0.4); }
         input:checked + .slider:before { transform: translateX(26px); }
         
         .switch.loading .slider {
@@ -233,55 +304,57 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid rgba(0,0,0,0.05);
             padding-top: 15px;
         }
         .action-btn {
-            background: none;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 35px;
-            height: 35px;
+            background: #edf2f7;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #777;
+            color: #718096;
             transition: all 0.2s;
         }
-        .action-btn:hover { background: #eee; color: #333; }
-        .action-btn.delete:hover { background: #fee; color: #dc3545; border-color: #dc3545; }
+        .action-btn:hover { background: rgba(0, 212, 170, 0.1); color: #00a896; border-color: #00a896; }
+        .action-btn.delete:hover { background: rgba(229, 62, 62, 0.1); color: #e53e3e; border-color: #e53e3e; }
         
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+            background: rgba(10, 14, 23, 0.5); backdrop-filter: blur(5px); justify-content: center; align-items: center;
         }
         .modal-content {
-            background: white; border-radius: 15px; padding: 30px; max-width: 500px; width: 90%;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2); position: relative;
-            animation: slideDown 0.3s ease;
+            background: #ffffff; border-radius: 15px; padding: 30px; max-width: 500px; width: 90%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1); position: relative;
+            animation: slideDown 0.3s ease; border: 1px solid rgba(0,0,0,0.05); color: #2d3748;
         }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .close-modal {
             position: absolute; top: 15px; left: 15px; font-size: 24px; cursor: pointer;
-            color: #aaa; transition: color 0.2s;
+            color: #a0aec0; transition: color 0.2s;
         }
-        .close-modal:hover { color: #333; }
+        .close-modal:hover { color: #2d3748; }
         
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
         .form-group input, .form-group select {
-            width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px;
-            font-size: 14px; background: #f8f9fa; box-sizing: border-box;
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;
+            font-size: 14px; background: #f8fafc; color: #2d3748; box-sizing: border-box;
+            font-family: inherit;
         }
+        .form-group input:focus { border-color: #00d4aa; outline: none; }
 
         .days-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; justify-content: center; }
         .day-btn {
-            padding: 8px 12px; border: 2px solid #e1e5e9; border-radius: 6px; cursor: pointer;
-            background: white; color: #666; transition: all 0.3s; font-weight: 600;
+            padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer;
+            background: #f8fafc; color: #718096; transition: all 0.3s; font-weight: 600;
         }
-        .day-btn.selected { background: #667eea; color: white; border-color: #667eea; }
+        .day-btn.selected { background: #00a896; color: #fff; border-color: #00a896; }
         
         .connection-type {
             display: inline-block;
@@ -292,20 +365,31 @@
             margin-left: 8px;
         }
         .connection-local {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(0, 212, 170, 0.15);
+            color: #00a896;
+            border: 1px solid rgba(0, 212, 170, 0.3);
         }
         .connection-mqtt {
-            background: #cfe2ff;
-            color: #084298;
+            background: rgba(66, 153, 225, 0.15);
+            color: #3182ce;
+            border: 1px solid rgba(66, 153, 225, 0.3);
         }
+        
+        /* Export Modal specific */
+        .export-container { text-align: center; margin-bottom: 20px; }
+        .export-icon { font-size: 40px; color: #00a896; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>لوحة تحكم المفاتيح الذكية</h1>
-            <p>Smart Switch Dashboard - التحكم المحلي والإنترنت (محسّن للسرعة)</p>
+            <div class="logo-container">
+                <img src="https://github.com/AlLaithSmart/Al_laithSmart/blob/main/Office_Logo2.png?raw=true" alt="Al-Laith Logo">
+            </div>
+            <div class="header-text">
+                <h1>مؤسسة الليث للحلول والتقنيات الذكية</h1>
+                <p>التحكم بالمفتاح الذكي عبر الإنترنيت</p>
+            </div>
         </div>
 
         <div class="toolbar">
@@ -408,7 +492,7 @@
                 </div>
                 <div class="form-group">
                     <label>معرف الجهاز (ID)</label>
-                    <input type="text" id="editDeviceId" readonly style="background:#eee;">
+                    <input type="text" id="editDeviceId" readonly style="background:#f1f5f9; opacity:0.7;">
                 </div>
                 <div class="form-group">
                     <label>رمز المصادقة</label>
@@ -450,8 +534,8 @@
             <div class="export-container">
                 <div class="export-icon"><i class="fas fa-file-export"></i></div>
                 <p id="exportDeviceName" style="font-size:18px; font-weight:bold; margin-bottom:5px;"></p>
-                <p id="exportDeviceId" style="color:#666; margin-bottom:15px;"></p>
-                <p style="font-size:14px; color:#555;">يمكنك تصدير ملف إعدادات هذا الجهاز وحفظه محلياً أو مشاركته.</p>
+                <p id="exportDeviceId" style="color:#718096; margin-bottom:15px;"></p>
+                <p style="font-size:14px; color:#4a5568;">يمكنك تصدير ملف إعدادات هذا الجهاز وحفظه محلياً أو مشاركته.</p>
             </div>
             <button class="btn btn-success" onclick="confirmExportDevice()" style="width: 100%;">
                 <i class="fas fa-download"></i> تحميل ملف الجهاز
